@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/User/Downloads/Project Files/Project Files/UBER Project/Project Files/UBER SUPPLY DEMAND GAPS/uber_project.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1632"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,21:mainuber_requests_cleaned"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">SELECT * FROM uber_requests_cleaned LIMIT 10;
+
+</sql><sql name="SQL 2">SELECT status, COUNT(*) AS total_requests
+FROM uber_requests_cleaned
+GROUP BY status;
+</sql><sql name="SQL 3">SELECT pickup_point,
+       COUNT(*) AS total_requests,
+       SUM(CASE WHEN status = 'Trip Completed' THEN 1 ELSE 0 END) AS completed,
+       SUM(CASE WHEN status != 'Trip Completed' THEN 1 ELSE 0 END) AS unmet_demand
+FROM uber_requests_cleaned
+GROUP BY pickup_point;
+</sql><sql name="SQL 4">SELECT request_hour,
+       SUM(unmet_demand) AS total_unmet_demand
+FROM uber_requests_cleaned
+GROUP BY request_hour
+ORDER BY total_unmet_demand DESC;
+</sql><sql name="SQL 5">SELECT request_hour,
+       COUNT(*) AS total_requests,
+       SUM(CASE WHEN status = 'Trip Completed' THEN 1 END) AS completed,
+       ROUND(
+           SUM(CASE WHEN status = 'Trip Completed' THEN 1 END) * 100.0 / COUNT(*),
+           2
+       ) AS completion_rate
+FROM uber_requests_cleaned
+GROUP BY request_hour
+ORDER BY completion_rate ASC;
+</sql><sql name="SQL 6">SELECT
+    SUM(CASE WHEN driver_id IS NULL THEN 1 END) AS no_driver_assigned,
+    SUM(CASE WHEN driver_id IS NOT NULL THEN 1 END) AS driver_assigned
+FROM uber_requests_cleaned;
+</sql><sql name="SQL 7">SELECT request_day,
+       COUNT(*) AS total_requests,
+       SUM(unmet_demand) AS total_unmet
+FROM uber_requests_cleaned
+GROUP BY request_day
+ORDER BY total_requests DESC;
+</sql><sql name="SQL 8">SELECT pickup_point,
+       ROUND(AVG(trip_duration_min), 2) AS avg_trip_duration
+FROM uber_requests_cleaned
+WHERE trip_duration_min &gt; 0
+GROUP BY pickup_point;
+</sql><sql name="SQL 9">SELECT
+    ROUND(SUM(unmet_demand) * 100.0 / COUNT(*), 2) AS unmet_percentage
+FROM uber_requests_cleaned;
+</sql><current_tab id="0"/></tab_sql></sqlb_project>
